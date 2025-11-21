@@ -25,7 +25,7 @@ Mini-stack : API Slim PHP + Next.js + MySQL. Le tout tourne via `docker compose 
 - Métriques simplifiées stockées en base (`metrics` table) : compteur `success` et `failed`, incrémentés à chaque appel `/apply`.
 
 ## Environnements & variables
-- API : `DB_HOST` (par défaut `db` en conteneur, `127.0.0.1` hors Docker), `DB_PORT` (3306), `DB_NAME` (`carrevolutis`), `DB_USER` (`app`), `DB_PASSWORD` (`app`).
+- API (Doctrine DBAL) : `DB_HOST` (par défaut `db` en conteneur, `127.0.0.1` hors Docker), `DB_PORT` (3306), `DB_NAME` (`carrevolutis`), `DB_USER` (`app`), `DB_PASSWORD` (`app`).
 - Front : `NEXT_PUBLIC_API_BASE_URL` (par défaut `http://localhost:8080`, fixé à `http://api` en Docker).
 
 ## Dév local sans Docker
