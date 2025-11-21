@@ -1,0 +1,23 @@
+FROM php:8.2-apache
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git unzip libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www/html
+
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf /etc/apache2/apache2.conf \
+    && a2enmod rewrite
+
+COPY api/composer.json ./
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress
+
+COPY api/ .
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]

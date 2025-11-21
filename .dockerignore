@@ -1,0 +1,9 @@
+node_modules
+web/node_modules
+web/.next
+api/vendor
+vendor
+.git
+.DS_Store
+npm-debug.log*
+yarn-error.log*

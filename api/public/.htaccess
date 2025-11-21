@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Serve existing files directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Fallback to the front controller for Slim routes
+RewriteRule ^ index.php [QSA,L]

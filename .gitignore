@@ -1,0 +1,9 @@
+/api/vendor
+/web/node_modules
+/web/.next
+/web/.turbo
+vendor
+node_modules
+.DS_Store
+npm-debug.log*
+yarn-error.log*
