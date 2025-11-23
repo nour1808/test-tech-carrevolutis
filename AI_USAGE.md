@@ -21,7 +21,7 @@ Utilisé ponctuellement pour :
 
 ⸻
 
-🧠 Prompts clés utilisés
+Prompts clés utilisés
 
 Voici les prompts ayant réellement influencé la génération du code :
 
@@ -40,6 +40,60 @@ Prompt 3 — Génération de la page Next.js
 Prompt 4 — Docker & DX
 
 “Génère un docker-compose.yml complet avec API + front + PostgreSQL + migrations automatiques, et deux Dockerfiles compatibles.”
+
+Prompt 5 -  Générer le nouvel endpoint API /applications
+
+Créer un endpoint GET /applications qui retourne la liste complète des candidatures :
+[
+{ "id": 1, "offer_id": 123, "email": "...", "cv_url": "...", "created_at": "..." },
+...
+]
+
+Exigences :
+
+- Utiliser Doctrine pour la requête SELECT.
+- Retourner une réponse JSON propre (Content-Type: application/json).
+- Gérer les erreurs (500) avec log JSON (event = "db_error").
+- Écrire le code prêt à coller dans `app.php`, comme les autres routes Slim.
+
+Fournis directement :
+
+1. Le code complet de la route Slim GET /applications
+2. Le SQL précis exécuté par PDO
+3. Un exemple de réponse JSON
+
+Prompt 6 - Générer l’affichage côté front (Next.js)
+
+Je veux afficher la liste des candidatures côté front Next.js.
+
+Contexte actuel :
+
+- J’ai un projet Next.js avec une page /offers/[id].js qui utilise fetch() pour POST /apply.
+- Le front communique avec l’API via NEXT_PUBLIC_API_BASE.
+- Je veux maintenant une nouvelle page /applications.
+
+Objectif :
+Créer une page Next.js `/applications` qui :
+
+- appelle `GET /applications` au chargement,
+- affiche la liste des candidatures (id, offer_id, email, cv_url, created_at),
+- gère les états : loading, succès, erreur réseau,
+- utilise un petit style inline simple (à la manière de ma page existante),
+- affiche un message “Aucune candidature pour le moment” si la liste est vide.
+
+Exigences :
+
+- Fournis une page React complète (fichier : `pages/applications.js`).
+- Utiliser `useEffect` + `useState` pour charger les données.
+- Faire un fetch `${API_BASE}/applications`.
+- Afficher les candidatures sous forme de tableau ou liste stylisée.
+- Ajouter une gestion d’erreur utilisateur-friendly.
+
+Fournis :
+
+1. Le code complet de la page Next.js
+2. Un exemple de rendu final (structure HTML)
+3. Un message d’erreur propre en cas de problème réseau
 
 Code généré (extraits principaux) :
 - `api/src/Controller/ApplicationController.php`, `api/src/Repository/ApplicationRepository.php`, `api/src/Validator/ApplicationValidator.php`, `api/src/Service/LoggerFactory.php`, routing dans `api/src/app.php`.
