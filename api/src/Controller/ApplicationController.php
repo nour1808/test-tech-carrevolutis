@@ -21,10 +21,12 @@ class ApplicationController
 
     public function apply(Request $request, Response $response): Response
     {
+        // Decoder le payload JSON entrant.
         $body = (string) $request->getBody();
         $data = json_decode($body, true);
 
         if (!is_array($data)) {
+            // JSON invalide -> on compte un echec et on renvoie 400.
             $this->repository->recordMetric('failed');
             $this->logger->warning('apply_invalid_json', ['path' => '/apply', 'body' => $body]);
             return self::jsonResponse($response, 400, ['error' => 'Invalid JSON payload']);
@@ -33,6 +35,7 @@ class ApplicationController
         $errors = $this->validator->validateApplyPayload($data);
 
         if (!empty($errors)) {
+            // Erreurs de validation -> on compte un echec et on renvoie 422 avec les details.
             $this->repository->recordMetric('failed');
             $this->logger->warning('apply_validation_failed', ['path' => '/apply', 'errors' => $errors]);
             return self::jsonResponse($response, 422, ['errors' => $errors]);
@@ -43,6 +46,7 @@ class ApplicationController
             $email = strtolower($data['email']);
             $cvUrl = $data['cv_url'];
 
+            // Creer la candidature si elle n'existe pas, sinon recuperer l'existante.
             $result = $this->repository->createOrGetApplication($offerId, $email, $cvUrl);
             $application = $this->repository->findApplicationById($result['id']);
 
@@ -50,6 +54,7 @@ class ApplicationController
                 throw new \RuntimeException('Failed to load application after persistence');
             }
 
+            // Success -> on incremente la metric et on renvoie la ressource creee/existante.
             $this->repository->recordMetric('success');
             $this->logger->info('apply_success', [
                 'path' => '/apply',
@@ -64,6 +69,7 @@ class ApplicationController
                 'message' => $result['created'] ? 'Application created' : 'Application already exists',
             ]);
         } catch (\Throwable $e) {
+            // Catch des erreurs imprevues -> on compte un echec et on renvoie 500.
             $this->repository->recordMetric('failed');
             $this->logger->error('apply_error', [
                 'path' => '/apply',
@@ -76,6 +82,7 @@ class ApplicationController
 
     public function stats(Request $request, Response $response): Response
     {
+        // Retourne les compteurs agreges (applications et metrics).
         $stats = $this->repository->fetchStats();
 
         return self::jsonResponse($response, 200, [
@@ -87,6 +94,7 @@ class ApplicationController
 
     public function list(Request $request, Response $response): Response
     {
+        // Retourne toutes les candidatures, plus recentes d'abord.
         $applications = $this->repository->fetchAllApplications();
 
         return self::jsonResponse($response, 200, [
@@ -96,11 +104,13 @@ class ApplicationController
 
     public function health(Request $request, Response $response): Response
     {
+        // Endpoint de health leger pour verifier la disponibilite.
         return self::jsonResponse($response, 200, ['status' => 'ok']);
     }
 
     private static function jsonResponse(Response $response, int $status, array $payload): Response
     {
+        // Helper pour encoder le payload en reponse JSON.
         $response->getBody()->write(json_encode($payload, JSON_UNESCAPED_SLASHES));
         return $response
             ->withHeader('Content-Type', 'application/json')

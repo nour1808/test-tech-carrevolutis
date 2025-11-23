@@ -8,6 +8,7 @@ class ApplicationValidator
 {
     public function validateApplyPayload(?array $data): array
     {
+        // Collecte des erreurs de validation pour le payload /apply.
         $errors = [];
 
         if (!isset($data['offer_id']) || filter_var($data['offer_id'], FILTER_VALIDATE_INT) === false) {

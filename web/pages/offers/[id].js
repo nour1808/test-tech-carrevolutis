@@ -3,16 +3,18 @@ import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import Toast from '../../components/Toast';
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function OfferPage() {
   const router = useRouter();
   const { id } = router.query;
+  // State local pour les champs de formulaire et le feedback UI (loading + toast).
   const [email, setEmail] = useState('');
   const [cvUrl, setCvUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: '', type: 'success' });
 
+  // Convertit l'id dynamique en number ou null si invalide.
   const offerId = useMemo(() => {
     if (!id) return null;
     const parsed = parseInt(id, 10);
@@ -21,6 +23,7 @@ export default function OfferPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    // Guard clause : id d'offre manquant ou invalide.
     if (!offerId) {
       setToast({ message: 'Identifiant d’offre invalide', type: 'error' });
       return;
@@ -28,6 +31,7 @@ export default function OfferPage() {
 
     setLoading(true);
     try {
+      // POST vers l'API /apply avec le payload attendu (offer_id, email, cv_url).
       const res = await fetch(`${apiBase}/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,10 +45,18 @@ export default function OfferPage() {
       const payload = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        setToast({ message: '🎉 Candidature envoyée !', type: 'success' });
+        // Succès : on vide les champs et on affiche un toast positif.
+        const successMessage = '🎉 Candidature envoyée !';
+        setToast({ message: successMessage, type: 'success' });
         setEmail('');
         setCvUrl('');
+        // Redirection vers /applications en transportant le message de toast.
+        router.push({
+          pathname: '/applications',
+          query: { toast: successMessage, type: 'success' },
+        });
       } else {
+        // Erreurs de validation : on concatène les messages retournés par l'API.
         const errors = payload?.errors;
         const message =
           errors && typeof errors === 'object'
@@ -54,6 +66,7 @@ export default function OfferPage() {
         setToast({ message, type: 'error' });
       }
     } catch (e) {
+      // Catch réseau/JS : feedback générique.
       setToast({ message: '💥 Oups, erreur !', type: 'error' });
     } finally {
       setLoading(false);

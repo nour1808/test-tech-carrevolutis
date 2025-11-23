@@ -1,2 +1,5 @@
 {"message":"apply_success","context":{"path":"/apply","status":200,"id":16,"offer_id":5,"email":"test1@gmail.com"},"level":200,"level_name":"INFO","channel":"api","datetime":"2025-11-23T11:48:20.335420+00:00","extra":{}}
 {"message":"apply_validation_failed","context":{"path":"/apply","errors":{"email":"A valid email is required"}},"level":300,"level_name":"WARNING","channel":"api","datetime":"2025-11-23T11:48:36.825405+00:00","extra":{}}
+{"message":"apply_success","context":{"path":"/apply","status":201,"id":26,"offer_id":1,"email":"test@test.com"},"level":200,"level_name":"INFO","channel":"api","datetime":"2025-11-23T12:58:19.397816+00:00","extra":{}}
+{"message":"apply_success","context":{"path":"/apply","status":200,"id":26,"offer_id":1,"email":"test@test.com"},"level":200,"level_name":"INFO","channel":"api","datetime":"2025-11-23T12:59:02.911528+00:00","extra":{}}
+{"message":"apply_success","context":{"path":"/apply","status":201,"id":28,"offer_id":1,"email":"test@tets.com"},"level":200,"level_name":"INFO","channel":"api","datetime":"2025-11-23T13:02:44.731938+00:00","extra":{}}

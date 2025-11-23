@@ -1,11 +1,14 @@
 import Head from 'next/head';
 import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import Toast from '../components/Toast';
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const resolveApi = () => {
   if (typeof window === 'undefined') return apiBase;
   // If the env points to an internal Docker hostname (ex: http://api), fall back to same-origin host.
+  // Résout l'URL API côté client : si host interne (api/localhost), on réutilise l'hôte courant avec port 8080.
   try {
     const url = new URL(apiBase);
     if (['api', 'localhost'].includes(url.hostname) || url.hostname === window.location.hostname) {
@@ -18,12 +21,16 @@ const resolveApi = () => {
 };
 
 export default function ApplicationsPage() {
+  // State pour la liste, le chargement et l'erreur affichée.
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState({ message: '', type: 'success' });
+  const router = useRouter();
 
   useEffect(() => {
     let active = true;
+    // Chargement initial des candidatures via GET /applications.
     const load = async () => {
       setLoading(true);
       setError('');
@@ -46,12 +53,24 @@ export default function ApplicationsPage() {
     };
   }, []);
 
+  // Stats locales calculées à partir des candidatures chargées.
   const stats = useMemo(() => {
     return {
       total: applications.length,
       offers: new Set(applications.map((a) => a.offer_id)).size,
     };
   }, [applications]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const toastMessage = typeof router.query.toast === 'string' ? router.query.toast : '';
+    const toastType = router.query.type === 'error' ? 'error' : 'success';
+    if (toastMessage) {
+      setToast({ message: toastMessage, type: toastType });
+      // Nettoie l'URL pour éviter de rejouer le toast au refresh/back.
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.isReady, router.query, router.pathname, router]);
 
   return (
     <>
@@ -118,6 +137,8 @@ export default function ApplicationsPage() {
           )}
         </section>
       </main>
+
+      <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: 'success' })} />
     </>
   );
 }

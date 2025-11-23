@@ -14,6 +14,7 @@ class ApplicationRepository
 
     public function recordMetric(string $name): void
     {
+        // Incremente un compteur de metric ; insere la ligne si elle n'existe pas.
         $this->connection->transactional(function (Connection $conn) use ($name): void {
             $updated = $conn->createQueryBuilder()
                 ->update('metrics')
@@ -24,6 +25,7 @@ class ApplicationRepository
 
             if ($updated === 0) {
                 try {
+                    // Insert de la ligne metric a la premiere occurrence.
                     $conn->createQueryBuilder()
                         ->insert('metrics')
                         ->values([
@@ -34,6 +36,7 @@ class ApplicationRepository
                         ->setParameter('cnt', 1, ParameterType::INTEGER)
                         ->executeStatement();
                 } catch (UniqueConstraintViolationException $e) {
+                    // Gere une race condition si la ligne est inseree entre update et insert.
                     $conn->createQueryBuilder()
                         ->update('metrics')
                         ->set('cnt', 'cnt + 1')
@@ -64,11 +67,13 @@ class ApplicationRepository
                 ->setParameter('cv_url', $cvUrl, ParameterType::STRING);
 
             try {
+                // Insert d'une nouvelle candidature ; retourne son id.
                 $insert->executeStatement();
                 $applicationId = (int) $conn->lastInsertId();
 
                 return ['created' => true, 'id' => $applicationId];
             } catch (UniqueConstraintViolationException $e) {
+                // Duplicata detecte : recuperer l'id de la candidature existante.
                 $existingId = $conn->createQueryBuilder()
                     ->select('id')
                     ->from('applications')
@@ -91,6 +96,7 @@ class ApplicationRepository
 
     public function findApplicationById(int $id): ?array
     {
+        // Charge une candidature par sa cle primaire.
         $application = $this->connection->createQueryBuilder()
             ->select('id', 'offer_id', 'email', 'cv_url', 'created_at')
             ->from('applications')
@@ -105,6 +111,7 @@ class ApplicationRepository
 
     public function fetchStats(): array
     {
+        // Agrege le total des candidatures et les compteurs de metrics.
         $applicationsTotal = (int) $this->connection->createQueryBuilder()
             ->select('COUNT(*)')
             ->from('applications')
@@ -131,6 +138,7 @@ class ApplicationRepository
 
     public function fetchAllApplications(): array
     {
+        // Liste toutes les candidatures ordonnees par date de creation (plus recentes en premier).
         return $this->connection->createQueryBuilder()
             ->select('id', 'offer_id', 'email', 'cv_url', 'created_at')
             ->from('applications')
