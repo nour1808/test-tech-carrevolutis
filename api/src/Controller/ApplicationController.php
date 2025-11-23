@@ -85,6 +85,15 @@ class ApplicationController
         ]);
     }
 
+    public function list(Request $request, Response $response): Response
+    {
+        $applications = $this->repository->fetchAllApplications();
+
+        return self::jsonResponse($response, 200, [
+            'applications' => $applications,
+        ]);
+    }
+
     public function health(Request $request, Response $response): Response
     {
         return self::jsonResponse($response, 200, ['status' => 'ok']);

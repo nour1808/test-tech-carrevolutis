@@ -128,4 +128,14 @@ class ApplicationRepository
             'metrics' => $metrics,
         ];
     }
+
+    public function fetchAllApplications(): array
+    {
+        return $this->connection->createQueryBuilder()
+            ->select('id', 'offer_id', 'email', 'cv_url', 'created_at')
+            ->from('applications')
+            ->orderBy('created_at', 'DESC')
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
 }

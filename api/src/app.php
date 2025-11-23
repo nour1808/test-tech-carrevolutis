@@ -28,7 +28,7 @@ function createApp(Connection $db): App
     $errorMiddleware = $app->addErrorMiddleware(true, true, true);
     $errorMiddleware->getDefaultErrorHandler()->forceContentType('application/json');
 
-    $loggerFactory = new LoggerFactory(stream: 'php://stdout', level: Logger::INFO);
+    $loggerFactory = new LoggerFactory(level: Logger::INFO);
     $logger = $loggerFactory->create('api');
     $repository = new ApplicationRepository($db);
     $validator = new ApplicationValidator();
@@ -50,6 +50,7 @@ function createApp(Connection $db): App
     $app->post('/apply', [$controller, 'apply']);
     $app->get('/stats', [$controller, 'stats']);
     $app->get('/health', [$controller, 'health']);
+    $app->get('/applications', [$controller, 'list']);
 
     return $app;
 }
